@@ -53,13 +53,30 @@ $AppName = @(
 $mountpath = Read-Host "Please provide the path to the mounted wim"
 
 ForEach ($app in $appname) {
-    Write-Verbose "Removing $app Provisioned Package"
-    Try {
-        Get-AppxProvisionedPackage -Name $app -Path $mountpath | Remove-AppxProvisionedPackage -Path $mountpath -ErrorAction SilentlyContinue
-        Write-Verbose "Removing $App Provisioned Package Succeeded."
-    }
+    # Nulling the variable as I dont know how it works in PS
+    $DoesAppExist = $null
 
-    Catch {
-        Write-Verbose "Removing $App Provisioned Package Failed."
-    }
+    # Checking app exists before attempting to remove
+ 
+        Write-Verbose "Checking if app is present in image."
+        $DoesAppExist = Get-AppxProvisionedPackage -Path $mountpath | Where-Object DisplayName -eq "$app"
+        
+        If ($DoesAppExist) {
+            Write-Host "$app Found" -ForegroundColor Green
+            Write-Verbose "Removing $app Provisioned Package."
+
+            Try {
+                Get-AppxProvisionedPackage -Path $mountpath | Where-Object DisplayName -eq "$app" | Remove-AppxProvisionedPackage -Path $mountpath -ErrorAction SilentlyContinue
+                Write-Host "Removing $App Provisioned Package Succeeded." -ForegroundColor Green
+            }
+            Catch {
+                Write-Verbose "Removing $App Provisioned Package Failed."
+            }
+        }
+
+        Else{
+            Write-Host "$app Not Found" -ForegroundColor Yellow
+        }
+    
+
 }
