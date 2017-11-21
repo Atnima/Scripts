@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UIpp Title="St Vincent's Health" Icon="UI++.ico">
+    <Actions>
+        <Action Type="DefaultValues" /> 
+        
+        <!-- <Action Type="Preflight" Title="Preflight checks"> 
+            <Check Text="WLAN Disconnected" CheckCondition='"%XWLANDisconnected%" = "True"' /> 
+            <Check Text="Not on battery" CheckCondition='"%XOnBattery%" = "False"' />
+            <Check Text="Minimum memory >= 4GB" CheckCondition='%XHWMemory% >= 3900' Description="Windows requires 4GB of RAM" ErrorDescription="Without 4GB of RAM, system performance will be severely affected" /> 
+            <Check Text="CPU Supports Windows 10" CheckCondition='%XCPUPAE% AND %XCPUNX% AND %XCPUSSE2% = True' /> 
+        </Action> -->
+
+        <Action Type="TSVar" Name="SVHABuildVersion">1607</Action>
+
+        <Action Type="Input" Name="BuildChoices" Title="Build Options" Size="Tall">
+            <TextInput Prompt="Computer Name" Hint="Enter the name for the system. This must be in the format ABCD-123456." RegEx="[A-Z]{4}\-[\d]{6}|[A-Z]{1}\d{6}" Variable="ZZComputerName" Question="Name for this system" Default="%XHWAssetTag%" />
+            <ChoiceInput Variable="MyLocation" Question="Please choose a final location for this computer" Required="True" Default="Brisbane" > 
+                <Choice Option="Brisbane" Value="AEST"/> 
+                <Choice Option="Sydney" Value="SYDAEDT"/> 
+                <Choice Option="Melbourne" Value="MELAEDT"/>
+            </ChoiceInput>
+            <ChoiceInput Variable="BuildType" Question="Which office installation do you require" Required="True" Default="Office 2016 VLK" > 
+                <Choice Option="Office 365 CTR x86" Value="CTR86"/> 
+                <Choice Option="Office 2016 VLK" Value="VLK86"/> 
+                <Choice Option="None" Value="NONE"/> 
+            </ChoiceInput>
+            <InputInfo NumberofLines="1"> </InputInfo>
+            <InputInfo NumberofLines="1">Is this a development machine?</InputInfo>
+            <CheckboxInput Variable="ZZDev" Question="Development system" CheckedValue="True" UncheckedValue="False" Default="False"/>
+            <InputInfo NumberofLines="1" Color="#ff0000">Please do not use this option for any production systems.</InputInfo>
+        </Action>
+
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "AEST"'>BRIS</Action> 
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "SYDAEDT"'>SYD</Action> 
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "MELAEDT"'>MEL</Action>
+
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "CTR86"'>CTR86</Action> 
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "VLK86"'>VLK86</Action> 
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "NONE"'>NONE</Action>
+
+        <Action Type="Input" Name="WindowsVersionOption" Title="Windows Version" ShowBack="True" Condition='"%ZZDev%" = "True"'>
+            <ChoiceInput Variable="ZZWindowsVersion" Question="Please select the Windows version for this build" Required="True" Default="Windows 10 Creators Update (1607)">
+                <Choice Option="Windows 10 November Update (1511)" Value="1511" />
+                <Choice Option="Windows 10 Anniversary Update (1607)" Value="1607" />
+                <Choice Option="Windows 10 Fall Creators Update (1709)" Value="1709" />
+            </ChoiceInput>
+        </Action>
+
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1511"'>1511</Action> 
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1607"'>1607</Action> 
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1709"'>1709</Action>
+
+        <Action Type="Info" Title="SummaryPage" Name="Summary" Timeout="10" TimeoutAction="Continue" ShowBack="True"> 
+        <![CDATA[System name: <b>%ZZComputerName%</b>.<br>Location: <b>%SVHALocation%</b> timezone.<br>Office Type: <b>%SVHAOffice%</b>.<br>Windows 10 Version: <b>%SVHABuildVersion%</b>]]>
+        </Action>
+
+    </Actions>
+</UIpp>

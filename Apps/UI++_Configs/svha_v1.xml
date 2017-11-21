@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UIpp Title="St Vincent's Health Australia" Icon="UI++.ico">
+    <Actions>
+        <Action Type="DefaultValues" /> 
+            <Action Type="WMIRead" Variable="ComputerName" Namespace="root\cimv2" Class="Win32_ComputerSystem" Property="Name"/> 
+            <Action Type="WMIRead" Variable="DellServiceTag" Namespace="root\cimv2" Class="Win32_SystemEnclosure" Property="SerialNumber"/> 
+            <Action Type="Input" Name="LocationChoice" Title="System Location"> 
+            <ChoiceInput Variable="MyLocation" Question="Please choose a final location for this computer" Required="True" /> 
+                <Choice Option="Brisbane (AEST)" Value="AEST"/> 
+                <Choice Option="Sydney (AEST/AEDT)" Value="AEDT"/> 
+                <Choice Option="Melbourne (AEST/AEDT)" Value="AEDT2"/> 
+            </ChoiceInput>
+        </Action>
+
+        <Action Type="Input" Name="ServiceTag" Title="No service tag found" Condition='"%DellServiceTag%" = "" Or Len("%DellServiceTag%")' < 5 Or Len("%DellServiceTag%") > 7'> <TextInput Prompt="Service Tag" Hint="No service tag was found for this system, please, enter one between 5 and 7 characters." Question="Please enter a service tag." RegEx=".{5,7}" Variable="DellServiceTag" /> </Action>
+        <Action Type="TSVar" Name="OSDTimezone" Condition='"%MyLocation%" = "AEST"'>Eastern Standard Time</Action> 
+        <Action Type="TSVar" Name="OSDTimezone" Condition='"%MyLocation%" = "AEDT"'>Eastern Standard Time</Action> 
+        <Action Type="TSVar" Name="OSDDomainOUName" >LDAP://OU=%MyLocation%,OU=AMERICAS,OU=Workstations,DC=domain,DC=com</Action> 
+        <Action Type="TSVar" Name="OSDDomainOUName" Condition='"%MyLocation%" = "MISC"'>LDAP://OU=Build,OU=Workstations,DC=domain,DC=com</Action> 
+        <Action Type="Info" Title="System Name" Name="SystemName"> <![CDATA[The name of this system will be <b>%MyLocation%W%DellServiceTag%</b>. It will be placed in the OU at <b>%OSDDomainOUName%</b> and will be set to the <b>%OSDTimezone%</b> timezone.]]> </Action> 
+        <Action Type="TSVar" Name="OSDComputerName">%MyLocation%W%DellServiceTag%</Action> 
+    </Actions> 
+</UIpp>

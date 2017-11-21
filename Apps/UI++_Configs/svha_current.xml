@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UIpp Title="St Vincent's Health">
+    <Actions>
+        <!-- Load default values - refer to UI++ doco for more details, also reads device info
+        and places into a variable -->
+        <Action Type="DefaultValues" /> 
+        
+        <!-- <Action Type="Preflight" Title="Preflight checks"> 
+            <Check Text="WLAN Disconnected" CheckCondition='"%XWLANDisconnected%" = "True"' /> 
+            <Check Text="Not on battery" CheckCondition='"%XOnBattery%" = "False"' />
+            <Check Text="Minimum memory >= 4GB" CheckCondition='%XHWMemory% >= 3900' Description="Windows requires 4GB of RAM" ErrorDescription="Without 4GB of RAM, system performance will be severely affected" /> 
+            <Check Text="CPU Supports Windows 10" CheckCondition='%XCPUPAE% AND %XCPUNX% AND %XCPUSSE2% = True' /> 
+        </Action> -->
+
+        <!-- Set default value for build to current production in case of error -->
+        <Action Type="TSVar" Name="SVHABuildVersion">1607</Action>
+
+        <!-- Display main options page, this allows the user to input a name, select a timezone
+        and specify an office type for the build. It also provides a developer option which adds an
+        extra page of options detailed below -->
+        <Action Type="Input" Name="BuildChoices" Title="Build Options" Size="Tall">
+            <TextInput Prompt="Computer Name" Hint="Enter the name for the system. This must be in the format ABCD-123456." RegEx="[A-Z]{4}\-[\d]{6}|[A-Z]{1}\d{6}" Variable="ZZComputerName" Question="Name for this system" Default="%XHWAssetTag%" />
+            <ChoiceInput Variable="MyLocation" Question="Please choose a final location for this computer" Required="True" Default="Brisbane" > 
+                <Choice Option="Brisbane" Value="AEST"/> 
+                <Choice Option="Sydney" Value="SYDAEDT"/> 
+                <Choice Option="Melbourne" Value="MELAEDT"/>
+            </ChoiceInput>
+            <ChoiceInput Variable="BuildType" Question="Which office installation do you require" Required="True" Default="Office 2016 VLK" > 
+                <Choice Option="Office 365 CTR x86" Value="CTR86"/> 
+                <Choice Option="Office 2016 VLK" Value="VLK86"/> 
+                <Choice Option="None" Value="NONE"/> 
+            </ChoiceInput>
+            <InputInfo NumberofLines="1"> </InputInfo>
+            <InputInfo NumberofLines="1">Is this a development machine?</InputInfo>
+            <CheckboxInput Variable="ZZDev" Question="Development system" CheckedValue="True" UncheckedValue="False" Default="False"/>
+            <InputInfo NumberofLines="1" Color="#ff0000">Please do not use this option for any production systems.</InputInfo>
+        </Action>
+
+        <!-- Set task sequence variables (TSVs) based on the above selections for use within the ConfigMgr
+        task sequence - this secion contains no user interactable actions -->
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "AEST"'>BRIS</Action> 
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "SYDAEDT"'>SYD</Action> 
+        <Action Type="TSVar" Name="SVHALocation" Condition='"%MyLocation%" = "MELAEDT"'>MEL</Action>
+
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "CTR86"'>CTR86</Action> 
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "VLK86"'>VLK86</Action> 
+        <Action Type="TSVar" Name="SVHAOffice" Condition='"%BuildType%" = "NONE"'>NONE</Action>
+
+        <!-- Provides options for development use including newer Windows 10 versions and the ability
+        to name a PC without a RegEx check (name a PC anything). -->
+        <Action Type="Input" Name="DeveloperOptions" Title="Developer Options" ShowBack="True" Condition='"%ZZDev%" = "True"'>
+            <InputInfo NumberofLines="2">If your device has an alternate non-standard name, enter it now.</InputInfo>
+            <TextInput Prompt="Computer Name" Hint="Enter the name for the system." RegEx=".+" Variable="ZZComputerName" Question="Name for this system" Default="%ZZComputerName%" />
+            <ChoiceInput Variable="ZZWindowsVersion" Question="Please select the Windows version for this build" Required="True" Default="Windows 10 Anniversary Update (1607)">
+                <Choice Option="Windows 10 Anniversary Update (1607)" Value="1607" />
+                <Choice Option="Windows 10 Fall Creators Update (1709)" Value="1709" />
+            </ChoiceInput>
+        </Action>
+
+        <!-- Sets Windows version varible based on the returns from the developer page. If the
+        user does not use the developer option it uses the default production value from the
+        beginning of the xml -->
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1511"'>1511</Action> 
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1607"'>1607</Action> 
+        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1709"'>1709</Action>
+
+        <!-- This section has been included to work around an issue with various models whereby
+        a build will fail when trying to join the domain. It appears to be an issue with the NIC
+        not loading in time, the TSV is used to determine domain join functionality -->
+        <Action Type="TSVar" Name="SVHADomainJoinBug">"False"</Action>
+        <Action Type="TSVar" Name="SVHADomainJoinBug" Condition='"%SVHABuildVersion%" = "1607" And "%XHWModel%" = "HP EliteDesk 800 G1 USDT"'>"True"</Action>
+        <Action Type="TSVar" Name="SVHADomainJoinBug" Condition='"%SVHABuildVersion%" = "1607" And "%XHWModel%" = "HP EliteBook 840 G3"'>"True"</Action>
+
+        <!-- Warn user if they are building an affected device -->
+        <Action Type="Info" Title="BugWarningPage" Name="Warning" Timeout="10" TimeoutAction="Continue" ShowBack="True" Condition='"%SVHADomainJoinBug%" = "True"'> 
+        <![CDATA[You are building a device affected by the domain join bug. Please be aware this devce may take longer than usual to build and will restart more than usual. Tihs is normal.]]>
+        </Action>
+
+        <!-- Displays a summary page detailing all above selections -->
+        <Action Type="Info" Title="SummaryPage" Name="Summary" Timeout="10" TimeoutAction="Continue" ShowBack="True"> 
+        <![CDATA[System name: <b>%ZZComputerName%</b>.<br>Location: <b>%SVHALocation%</b> timezone.<br>Office Type: <b>%SVHAOffice%</b>.<br>Windows 10 Version: <b>%SVHABuildVersion%</b>]]>
+        </Action>
+
+    </Actions>
+</UIpp>
