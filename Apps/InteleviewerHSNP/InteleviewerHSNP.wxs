@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="HSNP Inteleviewer Customisations" Language="1033" Version="1.1.0" Manufacturer="SVHA" UpgradeCode="{0c648707-6786-40ff-84be-b6f177df7379}">
+        <Package Description="Installer for HSNP Inteleviewer customisations" Manufacturer="SVHA" InstallerVersion="200" Compressed="yes" Platform="x64" />
+        <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+        <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+        <Property Id="ALLUSERS" Value="1" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramMenuFolder" Name="ProgramMenuFolder">
+            </Directory>
+            <Directory Id="ProgramFiles64Folder" Name="ProgramFiles64Folder">
+                <Directory Id="dir_SVHA" Name="SVHA">
+                    <Component Id="cmp_InteleviewerHSNPps1" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerHSNPps1" Name="Write-HSNPInteleviewerEntries.ps1" DiskId="1" Source="files\Write-HSNPInteleviewerEntries.ps1" />
+                    </Component>
+                    <Component Id="cmp_InteleviewerHSNPvbs" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerHSNPvbs" Name="LaunchHSNPInteleviewerEntries.vbs" DiskId="1" Source="files\LaunchHSNPInteleviewerEntries.vbs" />
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory>
+        <DirectoryRef Id="TARGETDIR">
+        </DirectoryRef>
+        <CustomAction Id="CreateScheduledTask_AtLogon_CreateInteleviewerKeysHSNP" Return="check" Impersonate="no" Execute="deferred" Directory="TARGETDIR" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /create /sc onlogon /tn AtLogon_CreateInteleviewerKeysHSNP /TR &quot;wscript 'C:\Program Files\SVHA\LaunchHSNPInteleviewerEntries.vbs'&quot; /it /ru interactive /f">
+        </CustomAction>
+        <CustomAction Id="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysHSNP" Return="ignore" Directory="ProgramFiles64Folder" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /delete /tn AtLogon_CreateInteleviewerKeysHSNP /F">
+        </CustomAction>
+        <InstallExecuteSequence>
+            <Custom Action="CreateScheduledTask_AtLogon_CreateInteleviewerKeysHSNP" After="InstallFiles">NOT Installed</Custom>
+            <Custom Action="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysHSNP" Before="RemoveFiles">Installed</Custom>
+        </InstallExecuteSequence>
+        <Feature Id="HSNPInteleviewerReg" Title="HSNP Inteleviewer Customisations" Level="1">
+            <ComponentRef Id="cmp_InteleviewerHSNPps1" />
+            <ComponentRef Id="cmp_InteleviewerHSNPvbs" />
+        </Feature>
+    </Product>
+</Wix>
+

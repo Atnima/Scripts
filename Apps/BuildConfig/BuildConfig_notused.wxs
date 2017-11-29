@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="SVHA Build Config" Language="1033" Version="1.0.0" Manufacturer="SVHA" UpgradeCode="{0cd21083-5976-47bc-a2f6-0eaf975fef05}">
+        <Package Description="Installer for SVHA build config registry entries" Manufacturer="SVHA" InstallerVersion="200" Compressed="yes" Platform="x64" />
+        <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+        <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+        <Property Id="ALLUSERS" Value="1" />
+        <Property Id="WIN101607" Value="0" />
+        
+        <!-- <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramMenuFolder" Name="ProgramMenuFolder">
+            </Directory>
+            <Directory Id="ProgramFiles64Folder" Name="ProgramFiles64Folder">
+                <Directory Id="dir_SVHA" Name="SVHA">
+                    <Component Id="cmp_InteleviewerSVHTps1" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerSVHTps1" Name="Write-SVHTInteleviewerEntries.ps1" DiskId="1" Source="files\Write-SVHTInteleviewerEntries.ps1" />
+                    </Component>
+                    <Component Id="cmp_InteleviewerSVHTvbs" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerSVHTvbs" Name="LaunchSVHTInteleviewerEntries.vbs" DiskId="1" Source="files\LaunchSVHTInteleviewerEntries.vbs" />
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory> -->
+        
+        <DirectoryRef Id="TARGETDIR">
+            <Component Id="RegistryEntries" Guid="1d6dbe31-cd43-4aa0-b7e0-045de9865a1d">
+                <RegistryKey Root="HKLM" Key="Software\SVHA\BuildInfo" Action="CreateAndRemoveOnUninstall">
+                    <RegistryValue Type="integer" Name="OriginalBuildVersion" Value="1709" KeyPath="Yes" />
+                    <RegistryValue Type="string" Value="SVHABuild" />
+                </RegistryKey>
+            </Component>
+        </DirectoryRef>
+        
+        <CustomAction Id="CreateScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Return="check" Impersonate="no" Execute="deferred" Directory="TARGETDIR" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /create /sc onlogon /tn AtLogon_CreateInteleviewerKeysSVHT /TR &quot;wscript 'C:\Program Files\SVHA\LaunchSVHTInteleviewerEntries.vbs'&quot; /it /ru interactive /f">
+        </CustomAction>
+        <CustomAction Id="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Return="ignore" Directory="ProgramFiles64Folder" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /delete /tn AtLogon_CreateInteleviewerKeysSVHT /F">
+        </CustomAction>
+        
+        <InstallExecuteSequence>
+            <Custom Action="CreateScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" After="InstallFiles">NOT Installed</Custom>
+            <Custom Action="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Before="RemoveFiles">Installed</Custom>
+        </InstallExecuteSequence>
+        
+        <Feature Id="SVHTInteleviewerReg" Title="SVHT Inteleviewer Customisations" Level="1">
+            <ComponentRef Id="cmp_InteleviewerSVHTps1" />
+            <ComponentRef Id="cmp_InteleviewerSVHTvbs" />
+        </Feature>
+    
+    </Product>
+</Wix>
+
