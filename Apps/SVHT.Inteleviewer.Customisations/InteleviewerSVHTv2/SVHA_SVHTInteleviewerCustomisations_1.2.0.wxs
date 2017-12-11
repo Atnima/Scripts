@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="SVHT Inteleviewer Customisations" Language="1033" Version="1.2.0" Manufacturer="SVHA" UpgradeCode="{4222898a-53bf-4596-9373-716e2507a5cf}">
+        <Package Description="Installer for SVHT Inteleviewer customisations" Manufacturer="SVHA" InstallerVersion="200" Compressed="yes" Platform="x64" />
+        <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+        <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+        <Property Id="ALLUSERS" Value="1" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramMenuFolder" Name="ProgramMenuFolder">
+            </Directory>
+            <Directory Id="ProgramFiles64Folder" Name="ProgramFiles64Folder">
+                <Directory Id="dir_SVHA" Name="SVHA">
+                    <Component Id="cmp_InteleviewerSVHTps1" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerSVHTps1" Name="Write-SVHTInteleviewerEntries.ps1" DiskId="1" Source="files\Write-SVHTInteleviewerEntries.ps1" />
+                    </Component>
+                    <Component Id="cmp_InteleviewerSVHTvbs" Guid="*" Win64="yes">
+                        <File Id="fil_InteleviewerSVHTvbs" Name="LaunchSVHTInteleviewerEntries.vbs" DiskId="1" Source="files\LaunchSVHTInteleviewerEntries.vbs" />
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory>
+        <DirectoryRef Id="TARGETDIR">
+        </DirectoryRef>
+        <CustomAction Id="CreateScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Return="check" Impersonate="no" Execute="deferred" Directory="TARGETDIR" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /create /sc onlogon /tn AtLogon_CreateInteleviewerKeysSVHT /TR &quot;wscript 'C:\Program Files\SVHA\LaunchSVHTInteleviewerEntries.vbs'&quot; /it /ru interactive /f">
+        </CustomAction>
+        <CustomAction Id="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Return="ignore" Directory="ProgramFiles64Folder" ExeCommand="&quot;[SystemFolder]schtasks.exe&quot; /delete /tn AtLogon_CreateInteleviewerKeysSVHT /F">
+        </CustomAction>
+        <InstallExecuteSequence>
+            <Custom Action="CreateScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" After="InstallFiles">NOT Installed</Custom>
+            <Custom Action="RemoveScheduledTask_AtLogon_CreateInteleviewerKeysSVHT" Before="RemoveFiles">Installed</Custom>
+        </InstallExecuteSequence>
+        <Feature Id="SVHTInteleviewerReg" Title="SVHT Inteleviewer Customisations" Level="1">
+            <ComponentRef Id="cmp_InteleviewerSVHTps1" />
+            <ComponentRef Id="cmp_InteleviewerSVHTvbs" />
+        </Feature>
+    </Product>
+</Wix>
+
