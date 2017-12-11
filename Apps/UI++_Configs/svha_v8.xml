@@ -53,7 +53,6 @@
             <TextInput Prompt="Computer Name" Hint="Enter the name for the system." RegEx=".+" Variable="ZZComputerName" Question="Name for this system" Default="%ZZComputerName%" />
             <ChoiceInput Variable="ZZWindowsVersion" Question="Please select the Windows version for this build" Required="True" Default="Windows 10 Anniversary Update (1607)">
                 <Choice Option="Windows 10 Anniversary Update (1607)" Value="1607" />
-                <Choice Option="Windows 10 Anniversary Update (1607) x86" Value="1607x86" />
                 <Choice Option="Windows 10 Fall Creators Update (1709)" Value="1709" />
             </ChoiceInput>
         </Action>
@@ -63,7 +62,6 @@
         beginning of the xml -->
         <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1511"'>1511</Action> 
         <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1607"'>1607</Action> 
-        <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1607x86"'>1607x86</Action>
         <Action Type="TSVar" Name="SVHABuildVersion" Condition='"%ZZWindowsVersion%" = "1709"'>1709</Action>
 
         <!-- This section has been included to work around an issue with various models whereby
