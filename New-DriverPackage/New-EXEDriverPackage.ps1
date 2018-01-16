@@ -3,7 +3,7 @@ $ISSETUP_PATH = 'C:\Program Files (x86)\Inno Setup 5\ISCC.exe'
 $DPINST_PATH = 'C:\Temp\github\Tools\DPInst'
 $DRIVERPACKAGEPATH = 'C:\TEMP'
 
-function New-MSIDriverPackage
+function New-EXEDriverPackage
 {
     [CmdletBinding()]
     Param
