@@ -1,0 +1,11 @@
+With the new "Current Branch" model of ConfigMgr and Windows 10 we can expect a faster release cycle of the ADK, which means new boot images pretty regularly!   Creating new boot media is really simple.  However, reimporting all of your required drivers into that boot image can be a real chore.  Here is a script that that identifies the drivers in a source boot image and imports them into a destination image.  This should reduce time to create usable boot media significantly.  Give it a spin and give me some feedback.
+
+Usage –
+
+.\Copy-FBBootImageDrivers.ps1 -SiteServer "ABC.Domain.Local" -SiteCode "XXX" -SourceBootImageID "XXX00011" -DestinationBootImages "XXX00012","XXX00013" -Verbose
+
+ 
+
+Update 10/7/2016 -
+
+Removed the "function" from the script so that it can not be run by just executing the Copy-FBBootImagedrivers.ps1 file.   It used to take two steps before.  (executing the script file and then calling the function)
