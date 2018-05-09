@@ -40,6 +40,8 @@
 #>
 #Requires -RunAsAdministrator
 
+#https://deploymentresearch.com/Research/Post/623/Read-CMLogs-with-Powershell-and-Hello-World
+
 #region --------------------------------------------------[Script Parameters]------------------------------------------------------
 param (
     [Parameter(Mandatory = $true)]

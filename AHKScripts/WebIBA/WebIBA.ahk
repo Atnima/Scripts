@@ -1,0 +1,1 @@
+Run, iexplore.exe "http://iba.stvmph.local/svm/cgi-bin/websec01.pbl?reportno=1&template=1"
