@@ -1,0 +1,9 @@
+##################################################################
+#                                                                #
+#               St Vincent's Health Australia                    #
+#                                                                #
+#    Unfortunately, the build has not completed successfully     #
+#   Please wait while diagnostic data and logs are uploaded to   #
+#          assist in any required troubleshooting.               #
+#                                                                #
+##################################################################
