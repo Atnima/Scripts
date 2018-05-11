@@ -47,7 +47,7 @@ $ErrorActionPreference = "SilentlyContinue"
 
 
 #Script Name
-$ScriptName = "OSD-PS-Script"
+$ScriptName = "WinPE-PS-Script"
 
 #Script Version
 $sScriptVersion = "1.0"
@@ -504,6 +504,52 @@ $ChosenBanner = Get-Random -InputObject $BannerOptions
 Write-Host
 Get-Content $ChosenBanner
 Write-Host
+Write-Host
+Write-Host "Name:           WinPE Build Script"
+Write-Host "Publisher:      St Vincent's Health Australia"
+Write-Host "Version:        0.1.0"
+Write-Host "Date:           10/05/2018"
+Write-Host
+Write-Host "Device Details"
+
+$ComputerSystem = Get-WmiObject Win32_ComputerSystem
+
+if ($ComputerSystem.Manufacturer -like "HP") {
+    Write-Host "Vendor:         Hewlett-Packard"
+} 
+
+else {
+    Write-Host "Vendor:        "$ComputerSystem.Manufacturer
+}
+Write-Host "Model:         "$ComputerSystem.Model
+Write-Host "Name:          "$ComputerSystem.Name
+Write-Host "OS Type:        " -NoNewline
+
+$OSRootLocation = (Get-WmiObject Win32_OperatingSystem).SystemDirectory
+if ($OSRootLocation -like "X:\*") {
+    Write-Host "WinPE" -ForegroundColor Green
+    $IsWinPE = $True
+}
+else {
+    Write-Host "Windows - Test Mode Active" -ForegroundColor Yellow
+    $IsWinPE = $False
+}
+
+If ($ComputerSystem.Manufacturer -like "Lenovo") {
+
+}
+Else {
+    $BIOSTag = Get-WmiObject Win32_SystemEnclosure
+    Write-Host "BIOS Asset Tag:" -NoNewline
+
+    if ($BIOSTag -match "^\d{6}$") {
+        Write-Host ""$BiosTag.SMBIOSAssetTag -ForegroundColor Green
+    }
+    else {
+        Write-Host ""$BiosTag.SMBIOSAssetTag -ForegroundColor Red
+    }
+}
+
 Write-Host
 
 # This section of the script runs the automated Data3 section to prevent UI execution and set required variables.
@@ -1040,6 +1086,16 @@ if ($Unsuccessful) {
     }
 }
 
+if ($IsWinPE) {
+    Write-Host "Setting SMSTSPreferredAdvertID"
+
+    $tsvarobj = New-Object -COMObject Microsoft.SMS.TSEnvironment
+    $tsvarobj.Value("SMSTSPreferredAdvertID") = "SVH200A9"
+    Write-Host
+    Pause
+}
+
+<#
 if (!$TestSwitch -and !$Data3 -and !$Apps -and !$Drivers -and !$SurfaceAssetTag ) {
     Write-Warning "No switch has been provided. Script will exit without action." 
     Write-Host
@@ -1049,9 +1105,6 @@ if (!$TestSwitch -and !$Data3 -and !$Apps -and !$Drivers -and !$SurfaceAssetTag 
     Write-Host "  - Data3" -ForegroundColor Yellow
     Write-Host "  - SurfaceAssetTag" -ForegroundColor Yellow
     Write-Host
-    Start-Sleep -Seconds 10
+    #Start-Sleep -Seconds 10
 }
-
-
-
-
+#>
