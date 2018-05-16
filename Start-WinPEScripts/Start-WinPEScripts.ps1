@@ -583,12 +583,10 @@ else {
 }
 Write-Host "Asset Tag Meets Standard: " -NoNewline
 if ($BIOSTag.SMBIOSAssetTag -match "^\d{6}$") {
-    Start-Sleep -Seconds 1
     Write-Host "True" -ForegroundColor Green
     $AssetTagStandard = $true
 }
 else {
-    Start-Sleep -Seconds 1
     Write-Host "False" -ForegroundColor Red
     $AssetTagStandard = $false
 }
@@ -766,8 +764,8 @@ if ($IPAddress -match "^(172)\.(19)\.(65)\.([0-9]{1,3})$" -or $IPAddress -eq "17
         }
 
         Write-Host "Generated Tag:      " -NoNewline
-        Write-Host "$FullyGeneratedAssetTag" -ForegroundColor Green
         $FullyGeneratedAssetTag = "$BarcodePrefix$WMIAssetTag"
+        Write-Host $FullyGeneratedAssetTag -ForegroundColor Green
         if ($IsWinPE) {
             $FullyGeneratedAssetTag = $tsvarobj.Value("SVHAAssetTag")
         }
