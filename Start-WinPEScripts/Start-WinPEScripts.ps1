@@ -879,7 +879,6 @@ if ($IPAddress -match "^(172)\.(19)\.(65)\.([0-9]{1,3})$" -or $IPAddress -eq "17
 }
 else {
     Write-Host "Computer is not located at Data#3" -ForegroundColor Green
-    Start-Sleep 5
 }
 
 Write-Host
@@ -890,10 +889,11 @@ if ($IsWinPE) {
     $tsvarobj = New-Object -COMObject Microsoft.SMS.TSEnvironment
     $tsvarobj.Value("SMSTSPreferredAdvertID") = "SVH200AC"
     Write-Host
-    Pause
 }
 else {
     Write-Host "TEST MODE - Skipping SMSTSPreferredAdvertID" -ForegroundColor Yellow
 }
 
+Start-Sleep 5
+Pause
 Write-Host
