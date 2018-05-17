@@ -48,6 +48,7 @@ $AppName = @(
     "Microsoft.ZuneVideo"
     "Microsoft.XboxIdentityProvider"
     "Microsoft.SkypeApp"
+    "Microsoft.GetHelp"
 )
 
 $mountpath = Read-Host "Please provide the path to the mounted wim"
