@@ -882,6 +882,8 @@ else {
     Start-Sleep 5
 }
 
+Write-Host
+
 if ($IsWinPE) {
     Write-Host "Setting SMSTSPreferredAdvertID"
 
