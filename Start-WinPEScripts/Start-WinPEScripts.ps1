@@ -65,7 +65,7 @@ if ($OSRootLocation -like "X:\*") {
 else {
     $IsWinPE = $False
 }
-pause
+#pause
 #Log-Start -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
 #Script Execution goes here
 #Log-Finish -LogPath $sLogFile
@@ -284,6 +284,7 @@ if ($IPAddress -match "^(172)\.(19)\.(65)\.([0-9]{1,3})$" -or $IPAddress -eq "17
             #Desktop
             3 { $BarcodePrefix = "D" }
             6 { $BarcodePrefix = "D" }
+            13 { $BarcodePrefix = "D" }
             15 { $BarcodePrefix = "D" }
             35 { $BarcodePrefix = "D" }
             #Unknown
@@ -342,7 +343,8 @@ if ($IPAddress -match "^(172)\.(19)\.(65)\.([0-9]{1,3})$" -or $IPAddress -eq "17
         Write-Host
         Write-Host "Device Name Variable: " -NoNewline
         if ($IsWinPE) {
-            $FullyGeneratedAssetTag = $tsvarobj.Value("SVHAAssetTag")
+            #$FullyGeneratedAssetTag = $tsvarobj.Value("SVHAAssetTag")
+            $tsvarobj.Value("SVHAAssetTag") = $FullyGeneratedAssetTag
             Write-Host "OK" -ForegroundColor Green
         }
         else {
@@ -363,22 +365,23 @@ if ($IPAddress -match "^(172)\.(19)\.(65)\.([0-9]{1,3})$" -or $IPAddress -eq "17
     # Ask if timezone needs to change
     $TimezoneNotDefault = TimedPrompt "AEDT Timezone is the default. Press any key for AEST." 10
     Write-Host
+    Write-Host "Timezone: " -NoNewline
     if ($TimezoneNotDefault) {
         $tsvarobj.Value("SVHALocation") = "BRIS"
         if ($tsvarobj.Value("SVHALocation") -eq "BRIS") {
-            Write-Host "Timezone AEST: OK" -ForegroundColor Green
+            Write-Host "OK (AEST)" -ForegroundColor Green
         }
         else {
-            Write-Host "Timezone AEST: FAIL" -ForegroundColor Red
+            Write-Host "FAIL (AEST)" -ForegroundColor Red
         }
     }
     else {
         $tsvarobj.Value("SVHALocation") = "MEL"
         if ($tsvarobj.Value("SVHALocation") -eq "MEL") {
-            Write-Host "Timezone AEDT: OK" -ForegroundColor Green
+            Write-Host "OK (AEDT)" -ForegroundColor Green
         }
         else {
-            Write-Host "Timezone AEDT: FAIL" -ForegroundColor Red
+            Write-Host "FAIL (AEDT)" -ForegroundColor Red
         }
     }
 
@@ -455,7 +458,10 @@ if ($IsWinPE) {
     Write-Host "Setting SMSTSPreferredAdvertID"
 
     $tsvarobj = New-Object -COMObject Microsoft.SMS.TSEnvironment
-    $tsvarobj.Value("SMSTSPreferredAdvertID") = "SVH200AC"
+    $tsvarobj.Value("SMSTSPreferredAdvertID") = "SVH200AF"
+    Start-Sleep 1
+    $PreferredAdvertIDCheck = $tsvarobj.Value("SMSTSPreferredAdvertID")
+    Write-Host "SMSTSPreferredAdvertID: $PreferredAdvertIDCheck"
     Write-Host
 }
 else {
@@ -464,4 +470,3 @@ else {
 
 Start-Sleep 5
 Pause
-Write-Host
